@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Bar</title>
+    <style>
+        body {
+            background-color: #EDF1FD;
+        }
+
+        .search-container {
+            width: 80%;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .icon {
+            padding: 20px 0px 20px 20px;
+            width: 40px;
+            height: 40px;
+        }
+        .search-title {
+            width: 10%;
+            padding: 20px 20px 20px 0px;
+            background-color: #EDF1FD;
+            border: none;
+        }
+
+        .search-form {
+            display: flex;
+            background-color: white;
+            border-radius: 15px;
+            padding: 5px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            background: transparent;
+            outline: none;
+        }
+
+        .search-button {
+            padding: 10px 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+            background-color: #0b7dda;
+        }
+
+        .border-line {
+            width: 100%;
+            color: black;
+        }
+
+        .word-item {
+            text-align: left;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .word-des {
+            display: flex;
+        }
+
+        .word-title {
+            font: bold;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        .word-type {
+            color: mediumpurple;
+            margin-right: 20px;
+        }
+
+        .word-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .word-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+            width: 50%;
+        }
+
+        .circle {
+            text-align: center;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            border: 2px solid #007bff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .circle h2 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        .emotions {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .positive, .negative {
+            padding: 0;
+            margin-right: 20px;
+        }
+
+        .positive ul {
+            color: #007bff;
+            margin: 10px 0;
+        }
+
+        .positive li {
+            padding: 5px;
+        }
+
+        .negative ul {
+            color: #e74c3c;
+            margin: 10px 0;
+        }
+
+        .negative li {
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="search-container">
+        <img class="icon" src="./icon.png">
+        <button class="search-title">유반사전</button>
+        <form class="search-form">
+            <input type="text" id="searchInput" class="search-input" placeholder="검색어를 입력하세요..." aria-label="검색">
+            <button type="submit" class="search-button" onclick="subitSearch(event)">검색</button>
+        </form>
+    </div>
+    <hr class="border-line" />
+    <div class="word-item" id="word-item">
+    </div>
+    <hr class="border-line" />
+    <div class="content" id="content">
+    </div>
+    <!-- json데이터 가져오기 -->
+    <script src="data.json" type="text/javascript"></script>
+    <script>
+        // 단어 데이터
+        let data = JSON.parse(JSON.stringify(Data))
+        // 페이지 나오면 파라미터로 전한 emotion하고 초성 가져와서 페이지 구현
+        window.onload = function() {
+            const param = new URLSearchParams(window.location.search);
+            const emotion = param.get('emotion');
+            const chosung = param.get('chosung');
+
+            // emotion 초성과 단어로 데이터에서 가져오기
+            const word = data[chosung] || [];
+            let emotionWord = {}
+            word.map(i => {
+                console.log(i["title"]);
+                if(i["title"] == emotion){
+                    emotionWord = i;
+                }
+            }
+            );
+            
+            
+            // 그거 표시
+            const wordArea = document.getElementById('word-item');
+            const contentArea = document.getElementById('content');
+
+            if(word.length === 0) {
+                console.log("no data")
+                wordArea.innerHTML = `
+                    <div class="word-title">(${emotion}) 데이터가 없습니다</div>
+                `
+                contentArea.innerHTML = `
+                    <div class="word-title">(${emotion}) 데이터가 없습니다</div>                
+                `
+            }
+            else {
+                wordArea.innerHTML = `
+                    <div class="word-title">${emotionWord["title"]}</div><br>
+                    <div class="word-des">
+                        <div class="word-type">${emotionWord["type"]}</div>
+                        <div class="word-description">${emotionWord["description"]}</div>                   
+                    </div>            
+                `
+
+                contentArea.innerHTML = `
+                    <div class='word-container'>
+                        <div class='circle'>
+                            <h2>${emotionWord["title"]}</h2>
+                        </div>
+                        <div class='positive'>
+                            <ul>
+                                <li>유의어</li>
+                            <ul>
+                        </div>
+                        <div class='negative'>
+                            <ul>
+                                <li>반의어</li>
+                            <ul>
+                        </div>
+                    </div>
+                    <div class='emotions'>
+                        <div class='positive'>
+                            <ul>
+                                <li>유의단어</li>
+                            </ul>
+                        </div>
+                        <div class='negative'>
+                            <ul>
+                                <li>반의단어</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            }
+        }
+    </script>
+</body>
+
+</html>
