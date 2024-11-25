@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Bar</title>
+    <title>유반사전</title>
     <style>
         body {
             background-color: #EDF1FD;
@@ -176,84 +176,7 @@
     <hr class="border-line" />
     <div class="content" id="content">
     </div>
-    <!-- json데이터 가져오기 -->
-    <script src="data.json" type="text/javascript"></script>
     <script>
-        /* 단어 데이터*/
-        let data = JSON.parse(JSON.stringify(Data))
-        /* 페이지 나오면 파라미터로 전한 emotion하고 초성 가져와서 페이지 구현*/
-        window.onload = function() {
-            const param = new URLSearchParams(window.location.search);
-            const emotion = param.get('emotion');
-            const chosung = param.get('chosung');
-
-            /* emotion 초성과 단어로 데이터에서 가져오기*/
-            const word = data[chosung] || [];
-            let emotionWord = {}
-            word.map(i => {
-                console.log(i["title"]);
-                if(i["title"] == emotion){
-                    emotionWord = i;
-                }
-            }
-            );
-            
-            
-            /*결과 표시 영역*/
-            const wordArea = document.getElementById('word-item');
-            const contentArea = document.getElementById('content');
-            
-            /*데이터가 없을 경우*/
-            if(word.length === 0) {
-                console.log("no data")
-                wordArea.innerHTML = `
-                    <div class="word-title">(${emotion}) 데이터가 없습니다</div>
-                `
-                contentArea.innerHTML = `
-                    <div class="word-title">(${emotion}) 데이터가 없습니다</div>                
-                `
-            }
-            /*데이터가 있을 경우*/
-            else {
-                wordArea.innerHTML = `
-                    <div class="word-title">${emotionWord["title"]}</div><br>
-                    <div class="word-des">
-                        <div class="word-type">${emotionWord["type"]}</div>
-                        <div class="word-description">${emotionWord["description"]}</div>                   
-                    </div>            
-                `
-
-                contentArea.innerHTML = `
-                    <div class='word-container'>
-                        <div class='circle'>
-                            <h2>${emotionWord["title"]}</h2>
-                        </div>
-                        <div class='positive'>
-                            <ul>
-                                <li>유의어</li>
-                            <ul>
-                        </div>
-                        <div class='negative'>
-                            <ul>
-                                <li>반의어</li>
-                            <ul>
-                        </div>
-                    </div>
-                    <div class='emotions'>
-                        <div class='positive'>
-                            <ul>
-                                <li>유의단어</li>
-                            </ul>
-                        </div>
-                        <div class='negative'>
-                            <ul>
-                                <li>반의단어</li>
-                            </ul>
-                        </div>
-                    </div>
-                `
-            }
-        }
     </script>
 </body>
 
