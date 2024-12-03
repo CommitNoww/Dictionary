@@ -1,0 +1,147 @@
+/* 메인 페이지 전체 스타일 */
+.main-page {
+    background-color: #edf1fd;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* 헤더 */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative; /* 로고를 중앙에 배치하기 위해 relative 설정 */
+  }
+  
+  /* 로고 */
+  .header-logo {
+    position: absolute; /* 로고를 헤더 중앙에 고정 */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .logo-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .logo-text {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  /* 버튼 */
+  .header-buttons {
+    display: flex;
+    justify-content: flex-end; /* 버튼을 우측에 정렬 */
+    margin-left: auto; /* 우측 정렬 보장 */
+  }
+  
+  .header-button {
+    padding: 10px 20px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .header-button:hover {
+    background-color: #1e88e5;
+  }
+  
+  .header-button.logout {
+    background-color: #ff5722;
+  }
+  
+  .header-button.logout:hover {
+    background-color: #e64a19;
+  }
+  
+  /* 메인 컨텐츠 */
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 20px;
+  }
+  
+  /* 검색바 */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 5px;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-form {
+    display: flex;
+    flex: 1;
+    align-items: center;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    background-color: transparent;
+    outline: none;
+  }
+  
+  .search-button {
+    padding: 10px 15px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .search-button:hover {
+    background-color: #1e88e5;
+  }
+  
+  /* 초성 버튼 */
+  .consonants {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .consonant-button {
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .consonant-button:hover {
+    background-color: #f0f0f0;
+  }  
