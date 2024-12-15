@@ -1,14 +1,24 @@
 const express = require("express");
 const cors = require("cors");
 const sqlite3 = require("sqlite3").verbose(); // SQLite 모듈
+const path = require('path');
+const dbPath = path.join(__dirname, 'sample.db');
 
 const app = express();
 const PORT = 5001;
 
+// 빌드된 React 앱을 서빙
+app.use(express.static(path.join(__dirname, 'build')));
+
 app.use(cors({
-  origin: "http://localhost:3000", // React 클라이언트 URL
+  origin: "http://43.201.250.147:5001/", // React 클라이언트 URL
   methods: ["GET", "POST"],       // 허용할 HTTP 메서드
 })); // CORS 설정
+
+// 모든 다른 요청은 index.html로 리디렉션
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 app.use(express.json()); // JSON 본문을 파싱
 app.use(express.urlencoded({ extended: true })); // URL 인코딩된 데이터를 파싱

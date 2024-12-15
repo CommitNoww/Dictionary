@@ -17,7 +17,7 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
   useEffect(() => {
     if (searchWord) {
       axios
-        .get(`http://localhost:5001/api/words?word=${searchWord}`)
+        .get(`http://43.201.250.147:5001/api/words?word=${searchWord}`)
         .then((response) => {
           // 서버 응답이 배열인지 확인
           if (Array.isArray(response.data)) {

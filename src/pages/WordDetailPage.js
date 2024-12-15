@@ -16,7 +16,7 @@ const WordDetailPage = () => {
   useEffect(() => {
     if (!wordData) {
       axios
-        .get(`http://localhost:5001/api/words?word=${word}`)
+        .get(`http://43.201.250.147:5001/api/words?word=${word}`)
         .then((response) => {
           const selectedWord =
             Array.isArray(response.data) && response.data.length > 0
