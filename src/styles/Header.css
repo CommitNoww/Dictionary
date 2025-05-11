@@ -38,3 +38,30 @@ html, body {
   font-size: 20px;
   font-weight: bold;
 }
+
+/* 버튼 */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  position: absolute; /* 버튼을 우측에 고정 */
+  right: 20px; /* 우측 여백 */
+  margin-right: 50px;
+}
+
+.header-button {
+  padding: 10px 20px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.header-button.logout {
+  background-color: #ff5722;
+}
+
+.header-button:hover {
+  background-color: #1e88e5;
+}
