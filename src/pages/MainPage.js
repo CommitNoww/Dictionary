@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "../styles/MainPage.css";
 
-const MainPage = () => {
+const MainPage = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
+
+  const handleInitialClick = (initial) => {
+    navigate(`/search-by-initial?initial=${initial}`);
+  };
 
   return (
     <div className="main-page">
-      <Header />
+      <Header userInfo={userInfo} onLogout={onLogout} />
       <main className="main">
         {/* 검색바 */}
         <div className="search-bar">
