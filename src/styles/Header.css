@@ -6,28 +6,31 @@ html, body {
   overflow-x: hidden; 
 }
 
+/* 상단 바 */
 .header {
   display: flex;
   align-items: center;
-  justify-content: center; 
-  height: 100px;
-  padding: 0 20px; 
+  justify-content: center; /* 모든 항목을 중앙 정렬 */
+  height: 100px; /* 상단바의 높이를 명시적으로 설정 */
+  padding: 0 20px; /* 좌우 여백 */
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  width: 100%; /* 화면 전체 너비 */
   position: relative;
-  z-index: 10;
+  z-index: 10; /* 다른 요소 위로 올라오도록 설정 */
 }
 
+/* 로고와 텍스트 컨테이너 */
 .header-logo {
   display: flex;
   align-items: center;
   cursor: pointer;
-  position: absolute;
+  position: absolute; /* 중앙 정렬을 유지하면서 버튼과 겹치지 않게 설정 */
   left: 50%;
   transform: translateX(-50%);
 }
 
+/* 로고 */
 .logo-image {
   width: 50px;
   height: 50px;
