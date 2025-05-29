@@ -6,10 +6,6 @@ import "../styles/MainPage.css";
 const MainPage = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
 
-  const handleInitialClick = (initial) => {
-    navigate(`/search-by-initial?initial=${initial}`);
-  };
-
   return (
     <div className="main-page">
       <Header userInfo={userInfo} onLogout={onLogout} />
