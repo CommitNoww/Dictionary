@@ -1,27 +1,8 @@
 import React from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/firebase-config";
-//import Kakao from "kakao-js-sdk"; // Kakao SDK import
-//import { loginWithKakao, getKakaoToken } from "../../components/Login/kakaoAuth";
-
 import googleImg from "../../assets/google-button.png"; // Google 로그인 이미지
-import kakaoImg from "../../assets/kakao-button.png"; // Kakao 로그인 이미지
 import logo from "../../assets/icon.png"; // 로고 이미지 import
-
-// Kakao 로그인 함수
-export const loginWithKakao = async () => {
-  try {
-    if (!window.Kakao.isInitialized()) {
-      window.Kakao.init("11ce0b264494bcf7102ff1b48f200dc3");
-      console.log("Kakao SDK 초기화 완료");
-    }
-    window.Kakao.Auth.authorize({
-      redirectUri: "http://localhost:3000/home",
-    });
-  } catch (error) {
-    console.error("Kakao 로그인 오류:", error);
-  }
-};
 
 const Login = ({ onLogin }) => {
   const handleGoogleLogin = async () => {
@@ -128,20 +109,6 @@ const Login = ({ onLogin }) => {
           }}
         >
           <img src={googleImg} alt="Google로 시작하기" style={{ width: "300px", borderRadius: "15px" }} />
-        </button>
-
-        {/* Kakao 로그인 버튼 */}
-        <button
-          onClick={loginWithKakao}
-          style={{
-            border: "none",
-            background: "none",
-            borderRadius: "15px",
-            overflow: "hidden",
-            cursor: "pointer",
-          }}
-        >
-          <img src={kakaoImg} alt="Kakao로 시작하기" style={{ width: "300px", borderRadius: "15px" }} />
         </button>
       </div>
     </div>
