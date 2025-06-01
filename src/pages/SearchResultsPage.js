@@ -12,24 +12,32 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
 
   const [searchResults, setSearchResults] = useState([]); // 현재 검색 결과
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // 데이터 가져오기
   useEffect(() => {
     if (searchWord) {
+      setLoading(true);
       axios
-        .get(`http://43.201.250.147:5001/api/words?word=${searchWord}`)
+        .get(`http://localhost:5001/api/words?word=${searchWord}`)
         .then((response) => {
-          // 서버 응답이 배열인지 확인
+          console.log("API 응답 확인:", response.data); // 디버깅용
           if (Array.isArray(response.data)) {
-            setSearchResults(response.data); // 배열 데이터 저장
+            setSearchResults(response.data);
+          } else if (response.data && response.data.word_info) {
+            setSearchResults([response.data]);
           } else {
-            setSearchResults([response.data]); // 단일 데이터도 배열로 변환
+            setSearchResults([]);
+            setError("검색 결과가 없습니다.");
           }
           setError(null);
         })
         .catch((err) => {
           setSearchResults([]);
           setError(err.response?.data?.message || "검색 실패");
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   }, [searchWord]);
@@ -63,28 +71,39 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
         </form>
       </div>
 
-      {/* 흰색 배경 컨테이너 */}
+      {/* 결과 컨테이너 */}
       <div className="results-container">
-        {error ? (
+        {loading ? (
+          <p>결과를 찾는 중...</p>
+        ) : error ? (
           <div className="no-results">
             <h1>{error}</h1>
           </div>
         ) : searchResults.length > 0 ? (
           <div className="results-content">
-            {searchResults.map((result, index) => (
-              <div
-                key={index}
-                className="result-item"
-                onClick={() => navigate(`/word/${result.word_info.word}`, {
-                  state: { wordData: result },})}
-              >
-                <h2>{result.word_info.word}</h2>
-                <p>{result.word_info.pronunciation || "발음 정보 없음"}</p>
-              </div>
-            ))}
+            {searchResults.map((result, index) => {
+              if (!result?.word_info) return null;
+
+              return (
+                <div
+                  key={index}
+                  className="result-item"
+                  onClick={() =>
+                    navigate(`/word/${result.word_info.word}`, {
+                      state: { wordData: result },
+                    })
+                  }
+                >
+                  <h2>{result.word_info.word}</h2>
+                  <p>{result.word_info.pronunciation || "발음 정보 없음"}</p>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p>결과를 찾는 중...</p>
+          <div className="no-results">
+            <p>검색 결과가 없습니다.</p>
+          </div>
         )}
       </div>
     </div>
