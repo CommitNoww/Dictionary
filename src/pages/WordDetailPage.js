@@ -5,7 +5,7 @@ import * as d3 from "d3";
 import Header from "../components/Header";
 import "../styles/WordDetailPage.css";
 
-const WordDetailPage = () => {
+const WordDetailPage = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
   const { word } = useParams();
   const location = useLocation();
@@ -16,6 +16,7 @@ const WordDetailPage = () => {
   const [expandedIndices, setExpandedIndices] = useState({});
   const [currentPage, setCurrentPage] = useState({});
 
+  const [favoriteTargetIds, setFavoriteWordIds] = useState([]); // 사용자의 즐겨찾기 단어 목록
   // 데이터 로딩
   useEffect(() => {
     if (!wordData) {
@@ -33,6 +34,14 @@ const WordDetailPage = () => {
           setWordData(null);
           setError(err.response?.data?.message || "단어 정보를 가져올 수 없습니다.");
         });
+    }
+    if (userInfo) {
+      axios
+        .get(`http://localhost:5001/api/favorites?user_uid=${userInfo.email}`)
+        .then((response) => {
+          console.log(response.data); // 디버깅용
+          setFavoriteWordIds(response.data);
+        })
     }
   }, [word]);
 
@@ -190,9 +199,43 @@ const WordDetailPage = () => {
     );
   }
 
+  // 즐겨찾기 등록, 해제
+  function handleFavoriteClick(isF, uid, target_code, word, pronunciation) {
+    if(isF) {
+      setFavoriteWordIds(prev => prev.filter(id => id !== String(target_code)));
+      axios.delete("http://localhost:5001/api/favorites", {
+        data: {
+          user_uid: uid,
+          target_code: target_code
+        }
+      }).then(() => {
+        console.log("즐겨찾기 삭제 완료");
+      }).catch((err) => {
+        console.error("즐겨찾기 삭제 실패: ", err);
+        setFavoriteWordIds(prev => [...prev, String(target_code)]);
+      })
+    } else {
+      setFavoriteWordIds(prev => [...prev, String(target_code)]);
+      axios.post("http://localhost:5001/api/favorites", {
+        data: {
+          user_uid: uid,
+          target_code: target_code,
+          word: word,
+          pronunciation: pronunciation
+        }
+      }).then(() => {
+        console.log("즐겨찾기 추가 완료");
+      }).catch((err) => {
+        console.error("즐겨찾기 추가 실패: ", err);
+        setFavoriteWordIds(prev => prev.filter(id => id !== String(wordData.target_code)));
+      })    
+    }
+  }
+  const isFavorite = favoriteTargetIds.includes(String(wordData.target_code));
+
   return (
     <div className="word-detail-page">
-      <Header />
+      <Header userInfo={userInfo} onLogout={onLogout} />
       <div className="back-button-container">
         <button className="back-button" onClick={() => navigate(-1)}>
           이전
@@ -205,11 +248,19 @@ const WordDetailPage = () => {
           <div className="word-block">
             <div className="word-header">
               <h1>
-                {wordData.word_info.word}
-                {wordData.word_info.original_language && (
-                  <span className="original-language">
-                    ({wordData.word_info.original_language})
-                  </span>
+                <div>
+                  {wordData.word_info.word}
+                  {wordData.word_info.original_language && (
+                    <span className="original-language">
+                      ({wordData.word_info.original_language})
+                    </span>
+                  )}
+                </div>
+                {userInfo && (<button
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleFavoriteClick(isFavorite, userInfo.email, wordData.target_code, wordData.word_info.word, wordData.word_info.pronunciation);
+                  }}>{isFavorite ? "★" : "☆"}</button>
                 )}
               </h1>
               {wordData.word_info.pronunciation && (
