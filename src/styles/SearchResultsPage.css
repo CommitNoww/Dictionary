@@ -65,6 +65,9 @@ html, body {
 }
 
 .result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex: 1 1 calc(100% - 40px);
   width: 650px;
   padding: 20px;
@@ -94,6 +97,9 @@ html, body {
   margin-top: 5px;
 }
 
+.result-item button {
+  font-size: 20px;
+}
 .no-results {
   font-size: 16px;
   color: #ff5722;
