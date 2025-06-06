@@ -11,7 +11,7 @@ const PORT = 5001;
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.use(cors({
-  origin: "http://43.201.250.147:5001/", // React 클라이언트 URL
+  origin: "http://localhost:5001/", // React 클라이언트 URL
   methods: ["GET", "POST"],       // 허용할 HTTP 메서드
 })); // CORS 설정
 
