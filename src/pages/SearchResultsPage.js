@@ -14,10 +14,12 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [favoriteTargetIds, setFavoriteWordIds] = useState([]); // 사용자의 즐겨찾기 단어 목록
+
   // 데이터 가져오기
   useEffect(() => {
+    setLoading(true);
     if (searchWord) {
-      setLoading(true);
       axios
         .get(`http://localhost:5001/api/words?word=${searchWord}`)
         .then((response) => {
@@ -36,12 +38,53 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
           setSearchResults([]);
           setError(err.response?.data?.message || "검색 실패");
         })
-        .finally(() => {
-          setLoading(false);
-        });
     }
+    if (userInfo) {
+      axios
+        .get(`http://localhost:5001/api/favorites?user_uid=${userInfo.email}`)
+        .then((response) => {
+          console.log(response.data); // 디버깅용
+          setFavoriteWordIds(response.data);
+        })
+    }
+    setLoading(false);
   }, [searchWord]);
 
+  // 즐겨찾기 등록, 해제
+  function handleFavoriteClick(isF, uid, target_code, word, pronunciation) {
+    console.log(uid);
+    console.log(target_code);
+    console.log(word);
+    if(isF) {
+      setFavoriteWordIds(prev => prev.filter(id => id !== String(target_code)));
+      axios.delete("http://localhost:5001/api/favorites", {
+        data: {
+          user_uid: uid,
+          target_code: target_code
+        }
+      }).then(() => {
+        console.log("즐겨찾기 삭제 완료");
+      }).catch((err) => {
+        console.error("즐겨찾기 삭제 실패: ", err);
+        setFavoriteWordIds(prev => [...prev, String(target_code)]);
+      })
+    } else {
+      setFavoriteWordIds(prev => [...prev, String(target_code)]);
+      axios.post("http://localhost:5001/api/favorites", {
+        data: {
+          user_uid: uid,
+          target_code: target_code,
+          word: word,
+          pronunciation: pronunciation
+        }
+      }).then(() => {
+        console.log("즐겨찾기 추가 완료");
+      }).catch((err) => {
+        console.error("즐겨찾기 추가 실패: ", err);
+        setFavoriteWordIds(prev => prev.filter(id => id !== String(target_code)));
+      })    
+    }
+  }
   return (
     <div className="search-results-page">
       {/* Header 컴포넌트 사용 */}
@@ -83,7 +126,7 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
           <div className="results-content">
             {searchResults.map((result, index) => {
               if (!result?.word_info) return null;
-
+              const isFavorite = favoriteTargetIds.includes(String(result.target_code));
               return (
                 <div
                   key={index}
@@ -94,8 +137,16 @@ const SearchResultsPage = ({ userInfo, onLogout }) => {
                     })
                   }
                 >
-                  <h2>{result.word_info.word}</h2>
-                  <p>{result.word_info.pronunciation || "발음 정보 없음"}</p>
+                  <div>
+                    <h2>{result.word_info.word}</h2>
+                    <p>{result.word_info.pronunciation || "발음 정보 없음"}</p>
+                  </div>
+                  {userInfo && (<button 
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleFavoriteClick(isFavorite, userInfo.email, result.target_code, result.word_info.word, result.word_info.pronunciation);
+                    }}>{isFavorite ? "★" : "☆"}</button>
+                  )}
                 </div>
               );
             })}
