@@ -15,11 +15,6 @@ app.use(cors({
   methods: ["GET", "POST"],       // 허용할 HTTP 메서드
 })); // CORS 설정
 
-// 모든 다른 요청은 index.html로 리디렉션
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
 app.use(express.json()); // JSON 본문을 파싱
 app.use(express.urlencoded({ extended: true })); // URL 인코딩된 데이터를 파싱
 
@@ -38,6 +33,16 @@ db.serialize(() => {
     `CREATE TABLE IF NOT EXISTS word (
       target_code TEXT PRIMARY KEY,
       data TEXT
+    )`
+  );
+  db.run(
+    `CREATE TABLE IF NOT EXISTS favorites (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_uid TEXT NOT NULL,
+      target_code TEXT NOT NULL,
+      word TEXT NOT NULL,
+      pronunciation TEXT,
+      UNIQUE(user_uid, target_code)
     )`
   );
   console.log("SQLite 테이블 준비 완료.");
@@ -68,6 +73,78 @@ app.get("/api/words", (req, res) => {
       }
     }
   );
+});
+
+app.post("/api/favorites", (req, res) => {
+  const { user_uid, target_code, word, pronunciation } = req.body.data;
+  if (!user_uid || !target_code || !word) {
+    return res.status(400).json({ message: "user_uid와 target_code, word 필요" });
+  }
+  db.run(
+    "INSERT OR IGNORE INTO favorites (user_uid, target_code, word, pronunciation) VALUES (?, ?, ?, ?)",
+    [user_uid, target_code, word, pronunciation],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ message: "DB 오류" });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+app.delete("/api/favorites", (req, res) => {
+  const { user_uid, target_code } = req.body;
+  if (!user_uid || !target_code) {
+    return res.status(400).json({ message: "user_uid와 target_code 필요" });
+  }
+  db.run(
+    "DELETE FROM favorites WHERE user_uid = ? AND target_code = ?",
+    [user_uid, target_code],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ message: "DB 오류" });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+app.get("/api/favorites", (req, res) => {
+  const user_uid = req.query.user_uid;
+  if (!user_uid) {
+    return res.status(400).json({ message: "user_uid 필요" });
+  }
+  db.all(
+    "SELECT target_code FROM favorites WHERE user_uid = ?",
+    [user_uid],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: "DB 오류" });
+      }
+      res.json(rows.map(row => row.target_code));
+    }
+  );
+});
+
+app.get("/api/favorites/word", (req, res) => {
+  const user_uid = req.query.user_uid;
+  if (!user_uid) {
+    return res.status(400).json({ message: "user_uid 필요" });
+  }
+  db.all(
+    "SELECT word, pronunciation FROM favorites WHERE user_uid = ?",
+    [user_uid],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: "DB 오류" });
+      }
+      res.json(rows);
+    }
+  );
+});
+// 모든 다른 요청은 index.html로 리디렉션
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // 서버 시작
