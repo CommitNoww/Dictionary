@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/icon.png"; // 로고 이미지 경로
+import axios from "axios";
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
 
+  const [favoriteTargetIds, setFavoriteWordIds] = useState([]); // 사용자의 즐겨찾기 단어 목록
+
   // 사용자 정보 가져오기
   useEffect(() => {
-    const userData = localStorage.getItem("userInfo");
+    const userData = JSON.parse(localStorage.getItem("userInfo"));
     if (userData) {
-      setUserInfo(JSON.parse(userData));
+      setUserInfo(userData);
     } else {
       alert("로그인이 필요합니다.");
       window.location.href = "/login";
+    }
+    if (userData) {
+      axios
+        .get(`http://localhost:5001/api/favorites/word?user_uid=${userData.email}`)
+        .then((response) => {
+          console.log(response.data); // 디버깅용
+          setFavoriteWordIds(response.data);
+          console.log(favoriteTargetIds);
+        })
     }
   }, []);
 
@@ -98,7 +110,7 @@ const MyPage = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "calc(100vh - 100px)", // 헤더 제외한 영역
+          minHeight: "calc(100vh - 300px)", // 헤더 제외한 영역
         }}
       >
         <div
@@ -159,6 +171,43 @@ const MyPage = () => {
             </p>
           </div>
         </div>
+      </div>
+      <h2
+        style={{
+          textAlign: "center"
+        }}>즐겨 찾기 단어 목록</h2>
+      <div 
+        style={{
+          display: "flex",
+          textAlign: "center",
+          justifyContent: "center",          
+          padding: "20px",
+          gap: "10px"
+        }}>
+          {favoriteTargetIds.length === 0 ? (
+            <h3>즐겨찾기한 단어가 없습니다.</h3>
+          ) : (
+            favoriteTargetIds.map((item, idx) => (
+              <div className="word-card"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  padding: "20px",
+                  gap: "10px",
+                  width: "80px",
+                  height: "50px",
+                  borderRadius: "10px",
+                  backgroundColor: "white"
+                }}>
+                <span 
+                  style={{
+                    color: "#2196f3"
+                  }}>{ item.word }</span>
+                <span>{ item.pronunciation }</span>
+              </div>
+            ))
+          )}
       </div>
     </div>
   );
