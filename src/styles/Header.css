@@ -1,0 +1,70 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; 
+}
+
+/* 상단 바 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 모든 항목을 중앙 정렬 */
+  height: 100px; /* 상단바의 높이를 명시적으로 설정 */
+  padding: 0 20px; /* 좌우 여백 */
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* 화면 전체 너비 */
+  position: relative;
+  z-index: 10; /* 다른 요소 위로 올라오도록 설정 */
+}
+
+/* 로고와 텍스트 컨테이너 */
+.header-logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: absolute; /* 중앙 정렬을 유지하면서 버튼과 겹치지 않게 설정 */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 로고 */
+.logo-image {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* 버튼 */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  position: absolute; /* 버튼을 우측에 고정 */
+  right: 20px; /* 우측 여백 */
+  margin-right: 50px;
+}
+
+.header-button {
+  padding: 10px 20px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.header-button.logout {
+  background-color: #ff5722;
+}
+
+.header-button:hover {
+  background-color: #1e88e5;
+}
