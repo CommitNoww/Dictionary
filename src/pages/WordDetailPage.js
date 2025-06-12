@@ -54,8 +54,8 @@ const WordDetailPage = () => {
 
     if (userInfo) {
       axios
-        .get(`http://localhost:5001/api/favorites?user_uid=${userInfo.email}`)
-        .then((response) => {
+      .get(`http://localhost:5001/api/favorites/target_code?user_uid=${userInfo.email}`)
+      .then((response) => {
           setFavoriteWordIds(response.data);
         });
     }
@@ -177,23 +177,37 @@ const WordDetailPage = () => {
     }));
   };
 
-  const handleFavoriteClick = (isF, uid, target_code, word, pronunciation) => {
-    if (isF) {
-      setFavoriteWordIds((prev) => prev.filter((id) => id !== String(target_code)));
+  // 즐겨찾기 등록, 해제
+  const handleFavoriteClick = (isF, uid, target_code, word_data) => {
+    if(isF) {
+      setFavoriteWordIds(prev => prev.filter(id => id !== String(target_code)));
       axios.delete("http://localhost:5001/api/favorites", {
-        data: { user_uid: uid, target_code: target_code },
-      }).catch(() => {
-        setFavoriteWordIds((prev) => [...prev, String(target_code)]);
-      });
+        data: {
+          user_uid: uid,
+          target_code: target_code
+        }
+      }).then(() => {
+        console.log("즐겨찾기 삭제 완료");
+      }).catch((err) => {
+        console.error("즐겨찾기 삭제 실패: ", err);
+        setFavoriteWordIds(prev => [...prev, String(target_code)]);
+      })
     } else {
-      setFavoriteWordIds((prev) => [...prev, String(target_code)]);
+      setFavoriteWordIds(prev => [...prev, String(target_code)]);
       axios.post("http://localhost:5001/api/favorites", {
-        data: { user_uid: uid, target_code, word, pronunciation },
-      }).catch(() => {
-        setFavoriteWordIds((prev) => prev.filter((id) => id !== String(target_code)));
-      });
+        data: {
+          user_uid: uid,
+          target_code: target_code,
+          word_data: word_data
+        }
+      }).then(() => {
+        console.log("즐겨찾기 추가 완료");
+      }).catch((err) => {
+        console.error("즐겨찾기 추가 실패: ", err);
+        setFavoriteWordIds(prev => prev.filter(id => id !== String(wordData.target_code)));
+      })    
     }
-  };
+  }
 
   const isFavorite = wordData && favoriteTargetIds.includes(String(wordData.target_code));
 
@@ -231,16 +245,18 @@ const WordDetailPage = () => {
           <div className="word-block">
             <div className="word-header">
               <h1>
-                {wordData.word_info.word}
-                {wordData.word_info.original_language && (
-                  <span className="original-language">
-                    ({wordData.word_info.original_language})
-                  </span>
-                )}
+                <div>
+                  {wordData.word_info.word}
+                  {wordData.word_info.original_language && (
+                    <span className="original-language">
+                      ({wordData.word_info.original_language})
+                    </span>
+                  )}
+                </div>
                 {userInfo && (
                   <button onClick={(e) => {
                     e.stopPropagation();
-                    handleFavoriteClick(isFavorite, userInfo.email, wordData.target_code, wordData.word_info.word, wordData.word_info.pronunciation);
+                    handleFavoriteClick(isFavorite, userInfo.email, wordData.target_code, wordData.word_info);
                   }}>
                     {isFavorite ? "★" : "☆"}
                   </button>

@@ -10,11 +10,9 @@ const MyPage = () => {
 
   useEffect(() => {
     const userData = localStorage.getItem("userInfo");
-
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUserInfo(parsedUser);
-
       // 최근 검색 이력 로드
       const loadHistory = async () => {
         const history = await fetchSearchHistory();
@@ -24,8 +22,8 @@ const MyPage = () => {
 
       // 즐겨찾기 단어 불러오기
       axios
-        .get(`http://localhost:5001/api/favorites/word?user_uid=${parsedUser.email}`)
-        .then((response) => {
+      .get(`http://localhost:5001/api/favorites?user_uid=${parsedUser.email}`)
+      .then((response) => {
           setFavoriteWordIds(response.data);
         })
         .catch((err) => {
@@ -109,13 +107,14 @@ const MyPage = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "calc(100vh - 100px)",
+          // minHeight: "calc(100vh - 100px)",
         }}
       >
         <div
           style={{
             backgroundColor: "white",
             padding: "40px",
+            marginTop: "100px",
             borderRadius: "30px",
             boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
             width: "360px",
@@ -159,7 +158,7 @@ const MyPage = () => {
               {searchHistory.length === 0 ? (
                 <p style={{ fontSize: "16px", color: "#888" }}>검색 이력이 없습니다.</p>
               ) : (
-                <ul style={{ paddingLeft: "20px", lineHeight: "1.8" }}>
+                <ul style={{lineHeight: "1.8", display: "flex", gap: "10px" }}>
                   {searchHistory.map((item, index) => (
                     <li
                       key={index}
@@ -196,23 +195,24 @@ const MyPage = () => {
           <h3>즐겨찾기한 단어가 없습니다.</h3>
         ) : (
           favoriteTargetIds.map((item, idx) => (
-            <div
-              key={idx}
-              className="word-card"
+            <div className="word-card"
               style={{
                 display: "flex",
-                flexDirection: "column",
                 justifyContent: "center",
+                flexDirection: "column",
                 padding: "20px",
-                width: "100px",
-                height: "60px",
+                gap: "10px",
+                width: "80px",
+                height: "50px",
                 borderRadius: "10px",
-                backgroundColor: "white",
-                textAlign: "center",
+                backgroundColor: "white"
               }}
-            >
-              <span style={{ color: "#2196f3" }}>{item.word}</span>
-              <span>{item.pronunciation}</span>
+              onClick={() => (window.location.href = `/word/${JSON.parse(item.word_data).word}`)}>
+              <span 
+                style={{
+                  color: "#2196f3"
+                }}>{ JSON.parse(item.word_data).word }</span>
+              <span>{ JSON.parse(item.word_data).pronunciation }</span>
             </div>
           ))
         )}

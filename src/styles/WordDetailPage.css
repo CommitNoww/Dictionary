@@ -58,7 +58,8 @@
   font-size: 33px;
   font-weight: bold;
   color: #333;
-  display: inline; 
+  display: flex;
+  justify-content: space-between;
 }
 
 .original-language {
