@@ -40,9 +40,7 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_uid TEXT NOT NULL,
       target_code TEXT NOT NULL,
-      word TEXT NOT NULL,
-      pronunciation TEXT,
-      UNIQUE(user_uid, target_code)
+      word_data TEXT NOT NULL
     )`
   );
   console.log("SQLite 테이블 준비 완료.");
@@ -75,13 +73,13 @@ app.get("/api/words", (req, res) => {
 
 // 즐겨찾기 추가
 app.post("/api/favorites", (req, res) => {
-  const { user_uid, target_code, word, pronunciation } = req.body.data;
-  if (!user_uid || !target_code || !word) {
+  const { user_uid, target_code, word_data } = req.body.data;
+  if (!user_uid || !target_code || !word_data) {
     return res.status(400).json({ message: "user_uid와 target_code, word 필요" });
   }
   db.run(
-    "INSERT OR IGNORE INTO favorites (user_uid, target_code, word, pronunciation) VALUES (?, ?, ?, ?)",
-    [user_uid, target_code, word, pronunciation],
+    "INSERT INTO favorites (user_uid, target_code, word_data) VALUES (?, ?, ?)",
+    [user_uid, target_code, JSON.stringify(word_data)],
     function (err) {
       if (err) {
         return res.status(500).json({ message: "DB 오류" });
@@ -109,38 +107,38 @@ app.delete("/api/favorites", (req, res) => {
   );
 });
 
-// 즐겨찾기 코드만 조회
+// 즐겨찾기 단어 조회
 app.get("/api/favorites", (req, res) => {
   const user_uid = req.query.user_uid;
   if (!user_uid) {
     return res.status(400).json({ message: "user_uid 필요" });
   }
   db.all(
-    "SELECT target_code FROM favorites WHERE user_uid = ?",
-    [user_uid],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: "DB 오류" });
-      }
-      res.json(rows.map(row => row.target_code));
-    }
-  );
-});
-
-// 즐겨찾기 단어 전체 조회
-app.get("/api/favorites/word", (req, res) => {
-  const user_uid = req.query.user_uid;
-  if (!user_uid) {
-    return res.status(400).json({ message: "user_uid 필요" });
-  }
-  db.all(
-    "SELECT word, pronunciation FROM favorites WHERE user_uid = ?",
+    "SELECT * FROM favorites WHERE user_uid = ?",
     [user_uid],
     (err, rows) => {
       if (err) {
         return res.status(500).json({ message: "DB 오류" });
       }
       res.json(rows);
+    }
+  );
+});
+
+// 즐겨찾기 코드 조회
+app.get("/api/favorites/target_code", (req, res) => {
+  const user_uid = req.query.user_uid;
+  if (!user_uid) {
+    return res.status(400).json({ message: "user_uid 필요" });
+  }
+  db.all(
+    "SELECT * FROM favorites WHERE user_uid = ?",
+    [user_uid],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: "DB 오류" });
+      }
+      res.json(rows.map(row => row.target_code));
     }
   );
 });
