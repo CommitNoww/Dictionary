@@ -61,91 +61,109 @@ const WordDetailPage = () => {
     }
   }, [word, userInfo]);
 
-  useEffect(() => {
-    if (wordData && d3Container.current) {
-      const svg = d3.select(d3Container.current);
-      svg.selectAll("*").remove();
+useEffect(() => {
+  if (wordData && d3Container.current) {
+    const svg = d3.select(d3Container.current);
+    svg.selectAll("*").remove();
 
-      const width = 600;
-      const height = 600;
+    const width = 600;
+    const height = 600;
 
-      const centralNode = {
-        id: wordData.word_info.word,
-        group: 0,
-        radius: 30,
-      };
+    const centralNode = {
+      id: wordData.word_info.word,
+      group: 0,
+      radius: 30,
+    };
 
-      let relatedWords = [];
+    let relatedWords = [];
 
-      wordData.word_info.pos_info.forEach((pos) => {
-        pos.comm_pattern_info.forEach((pattern) => {
-          pattern.sense_info.forEach((sense) => {
-            sense.lexical_info.forEach((lex) => {
-              relatedWords.push({
-                id: lex.word,
-                similarity: lex.similarity,
-                type: lex.type,
-                group: 1,
-              });
+    wordData.word_info.pos_info.forEach((pos) => {
+      pos.comm_pattern_info.forEach((pattern) => {
+        pattern.sense_info.forEach((sense) => {
+          sense.lexical_info.forEach((lex) => {
+            relatedWords.push({
+              id: lex.word,
+              similarity: lex.similarity,
+              type: lex.type,
+              group: 1,
             });
           });
         });
       });
+    });
 
-      const nodes = [centralNode, ...relatedWords];
-      const links = relatedWords.map((d) => ({
-        source: wordData.word_info.word,
-        target: d.id,
-        similarity: d.similarity,
-      }));
+    const nodes = [centralNode, ...relatedWords];
+    const links = relatedWords.map((d) => ({
+      source: wordData.word_info.word,
+      target: d.id,
+      similarity: d.similarity,
+    }));
 
-      const simulation = d3
-        .forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id((d) => d.id).distance((d) => 200 - 100 * d.similarity))
-        .force("charge", d3.forceManyBody().strength(-100))
-        .force("center", d3.forceCenter(width / 2, height / 2));
+    const simulation = d3
+      .forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id((d) => d.id).distance((d) => 200 - 100 * d.similarity))
+      .force("charge", d3.forceManyBody().strength(-100))
+      .force("center", d3.forceCenter(width / 2, height / 2));
 
-      const link = svg.append("g").attr("stroke", "#aaa").selectAll("line")
-        .data(links).join("line").attr("stroke-width", 2);
+    const link = svg.append("g").attr("stroke", "#aaa").selectAll("line")
+      .data(links).join("line").attr("stroke-width", 2);
 
-      const node = svg.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5)
-        .selectAll("circle").data(nodes).join("circle")
-        .attr("r", (d) => (d.group === 0 ? d.radius : 13))
-        .attr("fill", (d) => {
-          if (d.group === 0) return "#007bff";
-          if (d.type === "반대말") return "#ff4d4d";
-          return "#ffcc00";
-        })
-        .call(
-          d3.drag()
-            .on("start", (event, d) => {
-              if (!event.active) simulation.alphaTarget(0.3).restart();
-              d.fx = d.x;
-              d.fy = d.y;
-            })
-            .on("drag", (event, d) => {
-              d.fx = event.x;
-              d.fy = event.y;
-            })
-            .on("end", (event, d) => {
-              if (!event.active) simulation.alphaTarget(0);
-              d.fx = null;
-              d.fy = null;
-            })
-        );
+    const node = svg.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5)
+      .selectAll("circle").data(nodes).join("circle")
+      .attr("r", (d) => (d.group === 0 ? d.radius : 13))
+      .attr("fill", (d) => {
+        if (d.group === 0) return "#007bff";
+        if (d.type === "반대말") return "#ff4d4d";
+        return "#ffcc00";
+      })
+      .style("cursor", (d) => (d.group === 0 ? "default" : "pointer"))
+      .on("click", (event, d) => {
+        if (d.group !== 0) {
+          navigate(`/word/${d.id}`);
+        }
+      })
+      .on("mouseover", function (event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("r", d.group === 0 ? d.radius : 18); // hover 시 더 크게
+      })
+      .on("mouseout", function (event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("r", d.group === 0 ? d.radius : 13); // 원래 크기로
+      })
+      .call(
+        d3.drag()
+          .on("start", (event, d) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+          })
+          .on("drag", (event, d) => {
+            d.fx = event.x;
+            d.fy = event.y;
+          })
+          .on("end", (event, d) => {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+          })
+      );
 
-      const label = svg.append("g").selectAll("text").data(nodes).join("text")
-        .text((d) => d.id).attr("font-size", 12).attr("text-anchor", "middle");
+    const label = svg.append("g").selectAll("text").data(nodes).join("text")
+      .text((d) => d.id).attr("font-size", 12).attr("text-anchor", "middle");
 
-      simulation.on("tick", () => {
-        link.attr("x1", (d) => d.source.x).attr("y1", (d) => d.source.y)
-          .attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y);
+    simulation.on("tick", () => {
+      link.attr("x1", (d) => d.source.x).attr("y1", (d) => d.source.y)
+        .attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y);
 
-        node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-        label.attr("x", (d) => d.x).attr("y", (d) => d.y - 15);
-      });
-    }
-  }, [wordData]);
+      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+      label.attr("x", (d) => d.x).attr("y", (d) => d.y - 15);
+    });
+  }
+}, [wordData]);
 
   const classifyRelevanceLabel = (similarity) => {
     const abs = Math.abs(similarity);
